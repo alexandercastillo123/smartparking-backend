@@ -7,7 +7,7 @@ COPY src ./src
 
 RUN mvn clean package -DskipTests
 
-# Run stage
+# Run stagedffd
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
