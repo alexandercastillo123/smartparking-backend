@@ -12,7 +12,9 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 
     @Override
     public String encode(CharSequence rawPassword) {
-        return argon2.hash(10, 65536, 1, rawPassword.toString().toCharArray());
+        // Reduced parameters for low-resource environments (Koyeb free tier)
+        // iterations: 2 (was 10), memory: 15MB (was 64MB), parallelism: 1
+        return argon2.hash(2, 15360, 1, rawPassword.toString().toCharArray());
     }
 
     @Override

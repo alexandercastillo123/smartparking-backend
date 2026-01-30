@@ -19,7 +19,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -133,8 +137,8 @@ public class UserServiceImpl implements UserService {
         // Generar JWT con userId y role
         String token = jwtUtil.generateToken(user.getUserId(), user.getRole().name());
 
-        // Hashear el token para almacenarlo
-        String tokenHash = passwordEncoder.encode(token);
+        // Use SHA-256 for token hash (faster than Argon2, sufficient for this use case)
+        String tokenHash = hashTokenWithSha256(token);
 
         LocalDateTime expiresAt = LocalDateTime.now().plusHours(24);
 
@@ -212,5 +216,19 @@ public class UserServiceImpl implements UserService {
         dto.setStatus(user.getStatus().name());
         dto.setCreatedAt(user.getCreatedAt());
         return dto;
+    }
+
+    /**
+     * Hash token using SHA-256 for storage (faster than Argon2).
+     * This is sufficient for token validation as tokens are already cryptographically secure JWTs.
+     */
+    private String hashTokenWithSha256(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not available", e);
+        }
     }
 }
