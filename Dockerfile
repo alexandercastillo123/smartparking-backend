@@ -12,7 +12,7 @@ FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
 # Copy the jar file. ensuring we look in the correct directory /app/target
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/target/Smartparking-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 9090
 ENTRYPOINT ["java", "-jar", "app.jar"]
